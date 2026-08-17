@@ -14,6 +14,8 @@ function Set-ClipboardGhSecret([string]$Name, [string]$Prompt) {
 }
 
 Set-ClipboardGhSecret "OPENAI_API_KEY" "OpenAI API key"
+Set-ClipboardGhSecret "OPENAI_BASE_URL" "OpenAI-compatible API base URL, for example https://provider.example/v1"
+Set-ClipboardGhSecret "OPENAI_MODEL" "Model name supported by your provider, for example gpt-4o-mini"
 Set-ClipboardGhSecret "RESEND_API_KEY" "Resend API key"
 Set-ClipboardGhSecret "MAIL_FROM" "Verified sender email"
 Set-ClipboardGhSecret "MAIL_TO" "Recipient email"
