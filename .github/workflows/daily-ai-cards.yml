@@ -19,7 +19,7 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       MAIL_FROM: ${{ secrets.MAIL_FROM }}
       MAIL_TO: ${{ secrets.MAIL_TO }}
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
       RUN_SLOT: ${{ github.event.inputs.slot || (github.event.schedule == '0 8 * * *' && 'afternoon' || 'morning') }}
     steps:
       - uses: actions/checkout@v4

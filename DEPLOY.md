@@ -16,7 +16,7 @@ gh repo create daily-ai-cards --private --source . --remote origin --push
 - `RESEND_API_KEY`
 - `MAIL_FROM`：Resend 已验证的发件地址
 - `MAIL_TO`：你的收件地址
-- `GH_TOKEN`：GitHub PAT，建议使用 `repo` 和 `workflow` 权限
+- GitHub API 使用 Actions 自带的 `github.token`，无需额外配置 PAT
 
 然后在 Actions 页面手动运行一次 `Daily AI Cards`，确认邮件和 PNG 正常后再等待定时任务。GitHub Actions 的定时任务可能有几分钟延迟。
 

@@ -8,6 +8,6 @@ GitHub Actions 每天北京时间 09:00、16:00 运行两条独立内容线：�
 - `RESEND_API_KEY`: [Resend](https://resend.com) 邮件 API Key
 - `MAIL_FROM`: 已在 Resend 验证的发件地址
 - `MAIL_TO`: 接收地址
-- `GH_TOKEN`: GitHub PAT（推荐，提升 API 限额）
+- GitHub API 使用 Actions 自带的 `github.token`，无需额外配置 PAT
 
 所有数字和产品事实必须来自 `evidence.json`；卡片会显示来源、更新时间和官方/第三方类型。图像使用 SVG 转 PNG，避免图片模型造成中文字形错误。
