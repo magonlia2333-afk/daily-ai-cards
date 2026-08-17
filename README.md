@@ -5,6 +5,8 @@ GitHub Actions 每天北京时间 09:00、16:00 运行两条独立内容线：�
 ## 必需 Secrets
 
 - `OPENAI_API_KEY`: 用于筛选和撰写结构化文案
+- `OPENAI_BASE_URL`: 官方 OpenAI 留空；第三方中转站填写其 OpenAI 兼容 API 地址（通常以 `/v1` 结尾）
+- `OPENAI_MODEL`: 第三方中转站支持的模型名；默认 `gpt-5.6-terra`
 - `RESEND_API_KEY`: [Resend](https://resend.com) 邮件 API Key
 - `MAIL_FROM`: 已在 Resend 验证的发件地址
 - `MAIL_TO`: 接收地址
