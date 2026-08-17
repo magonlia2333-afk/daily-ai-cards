@@ -5,19 +5,16 @@ param(
 $ErrorActionPreference = "Stop"
 gh auth status | Out-Host
 
-function Set-SecureGhSecret([string]$Name, [string]$Prompt) {
-  $secure = Read-Host $Prompt -AsSecureString
-  $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-  try {
-    $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
-    $plain | gh secret set $Name --repo $Repo
-  } finally {
-    if ($ptr -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
-  }
+function Set-ClipboardGhSecret([string]$Name, [string]$Prompt) {
+  Write-Host "$Prompt - copy the value, then press Enter"
+  Read-Host | Out-Null
+  $value = Get-Clipboard -Raw
+  if ([string]::IsNullOrWhiteSpace($value)) { throw "Clipboard is empty for $Name" }
+  $value.Trim() | gh secret set $Name --repo $Repo
 }
 
-Set-SecureGhSecret "OPENAI_API_KEY" "OpenAI API key"
-Set-SecureGhSecret "RESEND_API_KEY" "Resend API key"
-Set-SecureGhSecret "MAIL_FROM" "Verified sender email"
-Set-SecureGhSecret "MAIL_TO" "Recipient email"
+Set-ClipboardGhSecret "OPENAI_API_KEY" "OpenAI API key"
+Set-ClipboardGhSecret "RESEND_API_KEY" "Resend API key"
+Set-ClipboardGhSecret "MAIL_FROM" "Verified sender email"
+Set-ClipboardGhSecret "MAIL_TO" "Recipient email"
 Write-Host "Secrets configured for $Repo"
