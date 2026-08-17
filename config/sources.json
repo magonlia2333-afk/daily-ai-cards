@@ -1,0 +1,10 @@
+{
+  "github_queries": [
+    "topic:ai pushed:>{recent}",
+    "codex OR openai OR agent pushed:>{recent}",
+    "deepseek OR qwen OR kimi OR minimax OR glm pushed:>{recent}"
+  ],
+  "official_news_feeds": [
+    "https://huggingface.co/blog/feed.xml"
+  ]
+}

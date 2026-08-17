@@ -1,0 +1,40 @@
+name: Daily AI Cards
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 09:00 Asia/Shanghai
+    - cron: '0 8 * * *'   # 16:00 Asia/Shanghai
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'morning or afternoon'
+        required: false
+        default: morning
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      MAIL_TO: ${{ secrets.MAIL_TO }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      RUN_SLOT: ${{ github.event.inputs.slot || (github.event.schedule == '0 8 * * *' && 'afternoon' || 'morning') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -r requirements.txt
+      - run: python scripts/generate_cards.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-cards-${{ github.run_id }}
+          path: generated/
+      - name: Commit generated cards
+        run: |
+          git config user.name github-actions
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add generated
+          git commit -m "chore: add daily AI cards" || exit 0
+          git push
