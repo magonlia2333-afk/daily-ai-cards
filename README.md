@@ -11,3 +11,5 @@ GitHub Actions 每天北京时间 09:00、16:00 运行两条独立内容线：�
 - GitHub API 使用 Actions 自带的 `github.token`，无需额外配置 PAT
 
 所有数字和产品事实必须来自 `evidence.json`；卡片会显示来源、更新时间和官方/第三方类型。图像使用 SVG 转 PNG，避免图片模型造成中文字形错误。
+
+也可以在本机运行 `./configure-secrets.ps1`，脚本会逐项安全询问这些值，不会把它们写入文件。
