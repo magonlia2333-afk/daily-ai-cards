@@ -13,6 +13,8 @@ gh repo create daily-ai-cards --private --source . --remote origin --push
 在仓库的 Settings -> Secrets and variables -> Actions 中添加：
 
 - `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`：官方 OpenAI 留空；第三方中转站填 OpenAI 兼容 API 地址
+- `OPENAI_MODEL`：中转站支持的模型名
 - `RESEND_API_KEY`
 - `MAIL_FROM`：Resend 已验证的发件地址
 - `MAIL_TO`：你的收件地址
