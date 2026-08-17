@@ -39,7 +39,7 @@ def collect_evidence():
     return evidence
 
 def ask_model(evidence):
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"], base_url=os.getenv("OPENAI_BASE_URL") or None)
     if CONTENT_TYPE == "news":
         brief = "这是新闻线：只选一条较新的、可核验的 AI 新闻，优先国产模型、国产工作台或重要产品更新。输出1个 item，内容要适合一张长图：发生了什么、为什么重要、对普通用户有什么用、下一步怎么跟进。不要写成新闻联播，也不要堆太多背景。"
         count = "只能输出1个 item"
@@ -47,7 +47,7 @@ def ask_model(evidence):
         brief = "这是技能线：只选 GitHub 上真正可用的 AI skill、工作流、工具或 Codex/AI coding 技巧。输出3到6个 item，每个 item 必须是一项可以照着做的技巧，写清楚步骤、适用场景、限制和预期结果，不要只介绍项目。"
         count = "输出3到6个 item"
     prompt = f"""你是严谨的中文科技自媒体编辑。{brief} 只能使用 EVIDENCE 中出现的事实，禁止补写未提供的 Star、日期、功能、性能或融资数字。国产项目必须以官方来源或项目原始仓库为准。每个项目必须有可核验 source_url，source_type 只能是 github 或 official_news。{count}。输出严格 JSON：{{\"theme\":\"...\",\"items\":[{{\"title\":\"...\",\"repo\":\"...\",\"why\":\"...\",\"how\":\"...\",\"audience\":\"...\",\"facts\":[\"...\"],\"source_url\":\"...\",\"source_type\":\"github|official_news\",\"updated_at\":\"...\"}}],\"post_title\":\"...\",\"post_body\":\"...\",\"hashtags\":[\"...\"]}}。EVIDENCE=""" + json.dumps(evidence, ensure_ascii=False)
-    res = client.chat.completions.create(model=os.getenv("OPENAI_MODEL","gpt-4o-mini"), temperature=0.2, response_format={"type":"json_object"}, messages=[{"role":"system","content":"你输出可审计、克制、准确的编辑结果。"},{"role":"user","content":prompt}])
+    res = client.chat.completions.create(model=os.getenv("OPENAI_MODEL","gpt-5.6-terra"), temperature=0.2, response_format={"type":"json_object"}, messages=[{"role":"system","content":"你输出可审计、克制、准确的编辑结果。"},{"role":"user","content":prompt}])
     return json.loads(res.choices[0].message.content)
 
 def esc(s): return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"','&quot;')
