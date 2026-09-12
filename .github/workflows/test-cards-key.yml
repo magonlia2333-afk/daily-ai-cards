@@ -26,7 +26,22 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements.txt
       - name: Generate one card and send only to requested recipient
-        run: python scripts/generate_cards.py
+        run: |
+          python - <<'PY'
+          import os, requests
+          key = os.environ["RESEND_API_KEY"]
+          print("key_has_surrounding_whitespace:", key != key.strip())
+          print("key_has_resend_prefix:", key.startswith("re_"))
+          r = requests.get("https://api.resend.com/domains", headers={"Authorization": "Bearer " + key}, timeout=30)
+          print("auth_probe_status:", r.status_code)
+          if not r.ok:
+              try:
+                  data = r.json()
+                  for field in ("name", "message"):
+                      print(field + ":", str(data.get(field, "")).replace(key, "[redacted]")[:400])
+              except ValueError:
+                  print("error_format: non_json")
+          PY
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
