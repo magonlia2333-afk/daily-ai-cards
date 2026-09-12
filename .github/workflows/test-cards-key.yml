@@ -12,7 +12,8 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      OPENAI_MODEL: gpt-5.6-terra
+      OPENAI_REASONING_EFFORT: medium
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       MAIL_FROM: ${{ secrets.MAIL_FROM }}
       MAIL_TO: magonlia2023@163.com
@@ -24,50 +25,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements.txt
-      - name: Diagnose provider model access without sending mail
-        env:
-          PROBE_BASE_URL: https://mo.monond.com/v1
-        run: |
-          python - <<'PY'
-          import os, requests
-          base = os.environ["PROBE_BASE_URL"]
-          configured = os.getenv("OPENAI_BASE_URL", "").strip().rstrip("/")
-          print("configured_url_matches_requested:", configured == base)
-          r = requests.get(base + "/models", headers={"Authorization": "Bearer " + os.environ["OPENAI_API_KEY"]}, timeout=30)
-          print("models_status:", r.status_code)
-          print("content_type:", r.headers.get("content-type", ""))
-          if r.ok:
-              data = r.json()
-              ids = [m.get("id") for m in data.get("data", []) if isinstance(m, dict)]
-              print("terra_models:", [m for m in ids if isinstance(m, str) and ("terra" in m.lower() or "5.6" in m)])
-          else:
-              print("blocked_phrase:", "Your request was blocked" in r.text)
-          r.raise_for_status()
-          target = "gpt-5.6-terra"
-          print("requested_terra_available:", target in ids)
-          payload = {"model": target, "reasoning_effort": "medium", "messages": [{"role": "user", "content": "Reply with only OK."}]}
-          r = requests.post(base + "/chat/completions", headers={"Authorization": "Bearer " + os.environ["OPENAI_API_KEY"], "Content-Type": "application/json"}, json=payload, timeout=120)
-          print("chat_status:", r.status_code)
-          print("chat_type:", r.headers.get("content-type", ""))
-          if r.ok:
-              print("chat_has_choices:", bool(r.json().get("choices")))
-          else:
-              try:
-                  err = r.json().get("error", {})
-                  print("error:", str(err).replace(os.environ["OPENAI_API_KEY"], "[redacted]")[:600])
-              except ValueError:
-                  print("non_json_error:", True)
-          r.raise_for_status()
-          from openai import OpenAI
-          client = OpenAI(api_key=os.environ["OPENAI_API_KEY"], base_url=base, max_retries=0, timeout=120)
-          try:
-              result = client.chat.completions.create(**payload)
-              print("sdk_has_choices:", bool(result.choices))
-          except Exception as exc:
-              print("sdk_error_type:", type(exc).__name__)
-              print("sdk_error_status:", getattr(exc, "status_code", None))
-              raise
-          PY
+      - name: Generate one card and send only to requested recipient
+        run: python scripts/generate_cards.py
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
