@@ -1,0 +1,34 @@
+name: Test cards key - single recipient
+on:
+  push:
+    branches: [test/cards-key-20260913]
+    paths: [.github/workflows/test-cards-key.yml]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      MAIL_TO: magonlia2023@163.com
+      GH_TOKEN: ${{ github.token }}
+      RUN_SLOT: morning
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Generate one card and send only to requested recipient
+        run: python scripts/generate_cards.py
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: single-recipient-test-${{ github.run_id }}
+          path: generated/
+          if-no-files-found: ignore
