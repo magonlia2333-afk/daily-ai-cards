@@ -43,6 +43,30 @@ jobs:
           else:
               print("blocked_phrase:", "Your request was blocked" in r.text)
           r.raise_for_status()
+          target = "gpt-5.6-terra"
+          print("requested_terra_available:", target in ids)
+          payload = {"model": target, "reasoning_effort": "medium", "messages": [{"role": "user", "content": "Reply with only OK."}]}
+          r = requests.post(base + "/chat/completions", headers={"Authorization": "Bearer " + os.environ["OPENAI_API_KEY"], "Content-Type": "application/json"}, json=payload, timeout=120)
+          print("chat_status:", r.status_code)
+          print("chat_type:", r.headers.get("content-type", ""))
+          if r.ok:
+              print("chat_has_choices:", bool(r.json().get("choices")))
+          else:
+              try:
+                  err = r.json().get("error", {})
+                  print("error:", str(err).replace(os.environ["OPENAI_API_KEY"], "[redacted]")[:600])
+              except ValueError:
+                  print("non_json_error:", True)
+          r.raise_for_status()
+          from openai import OpenAI
+          client = OpenAI(api_key=os.environ["OPENAI_API_KEY"], base_url=base, max_retries=0, timeout=120)
+          try:
+              result = client.chat.completions.create(**payload)
+              print("sdk_has_choices:", bool(result.choices))
+          except Exception as exc:
+              print("sdk_error_type:", type(exc).__name__)
+              print("sdk_error_status:", getattr(exc, "status_code", None))
+              raise
           PY
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
